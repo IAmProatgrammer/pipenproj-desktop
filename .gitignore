@@ -1,0 +1,7 @@
+build/
+vcpkg_installed/
+*.o
+*.a
+*.so
+*.so.*
+compile_commands.json

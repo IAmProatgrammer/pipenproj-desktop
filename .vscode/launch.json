@@ -1,0 +1,19 @@
+{
+    "version": "2.0.0",
+    "configurations": [
+        {
+            "name": "Debug linuxdesktopui",
+            "type": "cppdbg",
+            "request": "launch",
+            "program": "${workspaceFolder}/build/linuxdesktopui",
+            "args": [],
+            "stopAtEntry": false,
+            "cwd": "${workspaceFolder}",
+            "environment": [],
+            "externalConsole": false,
+            "MIMode": "gdb",
+            "miDebuggerPath": "/usr/bin/gdb",
+            "preLaunchTask": "CMake: build"
+        }
+    ]
+}
