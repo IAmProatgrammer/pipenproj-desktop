@@ -31,3 +31,6 @@ I don't know.
 But at that point, I was in too deep and did not have the patience to explain that I can't hack.
 Now it is the end of summer break as I write this, and I now know that I was in the wrong and that I was a total bad person.
 Still, they had the blocks preventing me from programming before I did all that.
+
+
+-edit. im back.. i will keep working until i wither from the effort. i need the work, and the goal, this will not be scraped.
