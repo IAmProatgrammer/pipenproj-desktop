@@ -9,11 +9,9 @@ find_package(PkgConfig REQUIRED)
 pkg_check_modules(GTK4 REQUIRED IMPORTED_TARGET gtk4)
 find_library(PAM_LIBRARY pam REQUIRED)
 add_executable(linuxdesktopui
-    main.c
-    login.c
-    login.h
-    disstack.c
-    disstack.h
+    source/main.c
+    source/login.c
+    source/disstack.c
 )
 
 target_link_libraries(linuxdesktopui PRIVATE
