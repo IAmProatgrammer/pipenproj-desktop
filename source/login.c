@@ -264,6 +264,9 @@ static GtkWidget *create_password_screen(
     LoginData *login
 )
 {
+    GtkWidget *overlay;
+    GtkWidget *backgroundimg;
+
     GtkWidget *box;
     GtkWidget *title;
     GtkWidget *password;
@@ -271,55 +274,116 @@ static GtkWidget *create_password_screen(
     GtkWidget *back_button;
 
 
-    box =
-        gtk_box_new(
-            GTK_ORIENTATION_VERTICAL,
-            10
+    /*
+     * =====================================================
+     * Overlay
+     * =====================================================
+     */
+
+    overlay = gtk_overlay_new();
+
+
+    /*
+     * =====================================================
+     * Background image
+     * =====================================================
+     */
+
+    backgroundimg =
+        gtk_picture_new_for_filename(
+            "assets/images/passwordscr.png"
         );
 
+    gtk_widget_set_hexpand(
+        backgroundimg,
+        TRUE
+    );
 
-    gtk_widget_set_margin_top(
+    gtk_widget_set_vexpand(
+        backgroundimg,
+        TRUE
+    );
+
+    gtk_picture_set_content_fit(
+        GTK_PICTURE(backgroundimg),
+        GTK_CONTENT_FIT_COVER
+    );
+
+
+    /*
+     * Put the image at the bottom.
+     */
+
+    gtk_overlay_set_child(
+        GTK_OVERLAY(overlay),
+        backgroundimg
+    );
+
+
+    /*
+     * =====================================================
+     * Password UI
+     * =====================================================
+     */
+
+    box = gtk_box_new(
+        GTK_ORIENTATION_VERTICAL,
+        10
+    );
+
+    /*
+     * Center the login box over the image.
+     */
+
+    gtk_widget_set_halign(
         box,
-        30
+        GTK_ALIGN_CENTER
     );
 
-    gtk_widget_set_margin_bottom(
+    gtk_widget_set_valign(
         box,
-        30
+        GTK_ALIGN_CENTER
     );
 
-    gtk_widget_set_margin_start(
+
+    /*
+     * CSS class for the whole password box.
+     */
+
+    gtk_widget_add_css_class(
         box,
-        30
-    );
-
-    gtk_widget_set_margin_end(
-        box,
-        30
+        "password-box"
     );
 
 
-    title =
-        gtk_label_new(
-            "Enter Password"
-        );
+    /*
+     * =====================================================
+     * Title
+     * =====================================================
+     */
 
 
-    gtk_box_append(
-        GTK_BOX(box),
-        title
-    );
 
+
+    /*
+     * =====================================================
+     * Password entry
+     * =====================================================
+     */
 
     password =
         gtk_password_entry_new();
 
-
-    gtk_widget_set_hexpand(
+    gtk_widget_set_size_request(
         password,
-        TRUE
+        250,
+        -1
     );
 
+    gtk_widget_add_css_class(
+        password,
+        "password-entry"
+    );
 
     gtk_box_append(
         GTK_BOX(box),
@@ -327,15 +391,28 @@ static GtkWidget *create_password_screen(
     );
 
 
-    login->password_entry =
-        password;
+    /*
+     * Save the entry so the callbacks can access it.
+     */
 
+    login->password_entry = password;
+
+
+    /*
+     * =====================================================
+     * Login button
+     * =====================================================
+     */
 
     login_button =
         gtk_button_new_with_label(
             "Login"
         );
 
+    gtk_widget_add_css_class(
+        login_button,
+        "password-login-button"
+    );
 
     gtk_box_append(
         GTK_BOX(box),
@@ -343,11 +420,21 @@ static GtkWidget *create_password_screen(
     );
 
 
+    /*
+     * =====================================================
+     * Back button
+     * =====================================================
+     */
+
     back_button =
         gtk_button_new_with_label(
             "Back"
         );
 
+    gtk_widget_add_css_class(
+        back_button,
+        "password-back-button"
+    );
 
     gtk_box_append(
         GTK_BOX(box),
@@ -355,13 +442,18 @@ static GtkWidget *create_password_screen(
     );
 
 
+    /*
+     * =====================================================
+     * Signals
+     * =====================================================
+     */
+
     g_signal_connect(
         login_button,
         "clicked",
         G_CALLBACK(password_login),
         login
     );
-
 
     g_signal_connect(
         back_button,
@@ -371,15 +463,30 @@ static GtkWidget *create_password_screen(
     );
 
 
+    /*
+     * Show password peek icon.
+     */
+
     gtk_password_entry_set_show_peek_icon(
         GTK_PASSWORD_ENTRY(password),
         TRUE
     );
 
 
-    return box;
-}
+    /*
+     * =====================================================
+     * Put the UI over the background.
+     * =====================================================
+     */
 
+    gtk_overlay_add_overlay(
+        GTK_OVERLAY(overlay),
+        box
+    );
+
+
+    return overlay;
+}
 
 /* =========================================================
  * User selection callbacks
@@ -577,16 +684,6 @@ static GtkWidget *create_user_screen(
     );
 
 
-    title =
-        gtk_label_new(
-            "Select User"
-        );
-
-
-    gtk_box_append(
-        GTK_BOX(box),
-        title
-    );
 
 
     /*

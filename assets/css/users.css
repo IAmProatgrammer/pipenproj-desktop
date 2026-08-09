@@ -1,0 +1,62 @@
+/* =========================================================
+   Transparent / Minimal User Selection Screen
+   ========================================================= */
+
+/* 1. Transparent Main Box Wrapper */
+overlay > box {
+  background-color: transparent;
+  backdrop-filter: none;
+  border: none;
+  box-shadow: none;
+  padding: 0;
+  min-width: 320px;
+  max-width: 400px;
+  halign: center;
+  valign: center;
+}
+
+/* 2. Hide the "Select User" Label */
+overlay > box > label {
+  display: none;
+}
+
+/* 3. User List Container - Shifted down */
+.user-list {
+  background-color: transparent;
+  border: none;
+  box-shadow: none;
+  padding: 0;
+  margin-top: 120px; /* Adjust this value up or down to align with your image text */
+}
+
+/* 4. Minimal User Item Rows */
+.user-row {
+  background-color: rgba(0, 0, 0, 0.25);
+  border-radius: 12px;
+  margin-bottom: 8px;
+  padding: 14px 20px;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  transition: all 150ms ease-in-out;
+}
+
+/* 5. Interactive States (Hover & Selection) */
+.user-row:hover {
+  background-color: rgba(255, 255, 255, 0.2);
+  border-color: rgba(255, 255, 255, 0.4);
+  cursor: pointer;
+}
+
+.user-row:selected,
+.user-row:active {
+  background-color: rgba(53, 132, 228, 0.6);
+  border-color: #3584e4;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+/* 6. User Text Label */
+.user-label {
+  font-size: 16px;
+  font-weight: 600;
+  color: #ffffff;
+  text-shadow: 0 1px 4px rgba(0, 0, 0, 0.6);
+}
