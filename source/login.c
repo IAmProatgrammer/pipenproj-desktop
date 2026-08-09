@@ -1,16 +1,20 @@
 #include "login.h"
 #include "disstack.h"
 
+#include <gtk/gtk.h>
+
 #include <pwd.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <security/pam_appl.h>
 #include <string.h>
+
+#include <security/pam_appl.h>
 
 
 /* =========================================================
  * PAM authentication
- * ========================================================= */
+ * =========================================================
+ */
 
 typedef struct {
     const char *password;
@@ -26,35 +30,49 @@ static int conversation(
 {
     auth_data_t *auth = data;
 
+
     struct pam_response *responses =
-        calloc(num_msg, sizeof(struct pam_response));
+        calloc(
+            num_msg,
+            sizeof(struct pam_response)
+        );
+
 
     if (responses == NULL)
         return PAM_CONV_ERR;
 
+
     for (int i = 0; i < num_msg; i++) {
 
-        if (msg[i]->msg_style == PAM_PROMPT_ECHO_OFF) {
+        if (msg[i]->msg_style ==
+            PAM_PROMPT_ECHO_OFF) {
 
             responses[i].resp =
                 strdup(auth->password);
 
+
             if (responses[i].resp == NULL) {
+
+                for (int j = 0; j < i; j++)
+                    free(responses[j].resp);
+
                 free(responses);
+
                 return PAM_CONV_ERR;
             }
 
-        } else if (msg[i]->msg_style == PAM_TEXT_INFO ||
-                   msg[i]->msg_style == PAM_ERROR_MSG) {
+        }
 
-            /*
-             * PAM may send informational/error messages.
-             * We don't need to respond to them.
-             */
+        else if (
+            msg[i]->msg_style == PAM_TEXT_INFO ||
+            msg[i]->msg_style == PAM_ERROR_MSG
+        ) {
 
             responses[i].resp = NULL;
 
-        } else {
+        }
+
+        else {
 
             for (int j = 0; j < i; j++)
                 free(responses[j].resp);
@@ -64,6 +82,7 @@ static int conversation(
             return PAM_CONV_ERR;
         }
     }
+
 
     *resp = responses;
 
@@ -76,39 +95,50 @@ int authenticate_user(
     const char *password
 )
 {
-    if (username == NULL || password == NULL)
+    if (username == NULL ||
+        password == NULL)
         return 0;
+
 
     auth_data_t data = {
         .password = password
     };
+
 
     struct pam_conv conv = {
         .conv = conversation,
         .appdata_ptr = &data
     };
 
+
     pam_handle_t *pamh = NULL;
 
-    int result = pam_start(
-        "login",
-        username,
-        &conv,
-        &pamh
-    );
+
+    int result =
+        pam_start(
+            "login",
+            username,
+            &conv,
+            &pamh
+        );
+
 
     if (result != PAM_SUCCESS)
         return 0;
 
-    result = pam_authenticate(
-        pamh,
-        0
-    );
+
+    result =
+        pam_authenticate(
+            pamh,
+            0
+        );
+
 
     pam_end(
         pamh,
         result
     );
+
 
     return result == PAM_SUCCESS;
 }
@@ -116,14 +146,11 @@ int authenticate_user(
 
 /* =========================================================
  * Login data
- * ========================================================= */
+ * =========================================================
+ */
 
 typedef struct {
 
-    /*
-     * This pointer is safe because main.c keeps the
-     * screen_t alive for the lifetime of the application.
-     */
     screen_t *screen;
 
     GtkWidget *user_screen;
@@ -138,7 +165,8 @@ typedef struct {
 
 /* =========================================================
  * Password screen callbacks
- * ========================================================= */
+ * =========================================================
+ */
 
 static void password_back(
     GtkButton *button,
@@ -147,10 +175,12 @@ static void password_back(
 {
     (void)button;
 
+
     LoginData *login = data;
 
     if (login == NULL)
         return;
+
 
     switchscreen(
         login->screen,
@@ -166,18 +196,24 @@ static void password_login(
 {
     (void)button;
 
+
     LoginData *login = data;
 
     if (login == NULL)
         return;
 
+
     if (login->username == NULL)
         return;
 
+
     const char *password =
         gtk_editable_get_text(
-            GTK_EDITABLE(login->password_entry)
+            GTK_EDITABLE(
+                login->password_entry
+            )
         );
+
 
     if (authenticate_user(
         login->username,
@@ -189,20 +225,30 @@ static void password_login(
             login->username
         );
 
+
         /*
-         * Later you can switch to your actual
-         * desktop/home screen here.
+         * Later:
+         *
+         * switchscreen(
+         *     login->screen,
+         *     "desktop"
+         * );
          */
 
-    } else {
+    }
+
+    else {
 
         printf(
             "Incorrect password for %s\n",
             login->username
         );
 
+
         gtk_editable_set_text(
-            GTK_EDITABLE(login->password_entry),
+            GTK_EDITABLE(
+                login->password_entry
+            ),
             ""
         );
     }
@@ -211,7 +257,8 @@ static void password_login(
 
 /* =========================================================
  * Password screen
- * ========================================================= */
+ * =========================================================
+ */
 
 static GtkWidget *create_password_screen(
     LoginData *login
@@ -223,10 +270,13 @@ static GtkWidget *create_password_screen(
     GtkWidget *login_button;
     GtkWidget *back_button;
 
-    box = gtk_box_new(
-        GTK_ORIENTATION_VERTICAL,
-        10
-    );
+
+    box =
+        gtk_box_new(
+            GTK_ORIENTATION_VERTICAL,
+            10
+        );
+
 
     gtk_widget_set_margin_top(
         box,
@@ -249,9 +299,11 @@ static GtkWidget *create_password_screen(
     );
 
 
-    title = gtk_label_new(
-        "Enter Password"
-    );
+    title =
+        gtk_label_new(
+            "Enter Password"
+        );
+
 
     gtk_box_append(
         GTK_BOX(box),
@@ -259,25 +311,31 @@ static GtkWidget *create_password_screen(
     );
 
 
-    password = gtk_password_entry_new();
+    password =
+        gtk_password_entry_new();
+
 
     gtk_widget_set_hexpand(
         password,
         TRUE
     );
 
+
     gtk_box_append(
         GTK_BOX(box),
         password
     );
 
-    login->password_entry = password;
+
+    login->password_entry =
+        password;
 
 
     login_button =
         gtk_button_new_with_label(
             "Login"
         );
+
 
     gtk_box_append(
         GTK_BOX(box),
@@ -289,6 +347,7 @@ static GtkWidget *create_password_screen(
         gtk_button_new_with_label(
             "Back"
         );
+
 
     gtk_box_append(
         GTK_BOX(box),
@@ -303,6 +362,7 @@ static GtkWidget *create_password_screen(
         login
     );
 
+
     g_signal_connect(
         back_button,
         "clicked",
@@ -311,10 +371,6 @@ static GtkWidget *create_password_screen(
     );
 
 
-    /*
-     * Pressing Enter in the password entry
-     * can activate the login button.
-     */
     gtk_password_entry_set_show_peek_icon(
         GTK_PASSWORD_ENTRY(password),
         TRUE
@@ -327,7 +383,8 @@ static GtkWidget *create_password_screen(
 
 /* =========================================================
  * User selection callbacks
- * ========================================================= */
+ * =========================================================
+ */
 
 static void user_activated(
     GtkListBox *list,
@@ -337,17 +394,22 @@ static void user_activated(
 {
     (void)list;
 
+
     LoginData *login = data;
 
     if (login == NULL)
         return;
+
 
     if (row == NULL)
         return;
 
 
     GtkWidget *label =
-        gtk_list_box_row_get_child(row);
+        gtk_list_box_row_get_child(
+            row
+        );
+
 
     if (label == NULL)
         return;
@@ -361,8 +423,10 @@ static void user_activated(
 
     free(login->username);
 
+
     login->username =
         strdup(username);
+
 
     if (login->username == NULL)
         return;
@@ -375,7 +439,9 @@ static void user_activated(
 
 
     gtk_editable_set_text(
-        GTK_EDITABLE(login->password_entry),
+        GTK_EDITABLE(
+            login->password_entry
+        ),
         ""
     );
 
@@ -396,12 +462,16 @@ static void user_selected(
     (void)list;
     (void)data;
 
+
     if (row == NULL)
         return;
 
 
     GtkWidget *label =
-        gtk_list_box_row_get_child(row);
+        gtk_list_box_row_get_child(
+            row
+        );
+
 
     if (label == NULL)
         return;
@@ -422,21 +492,69 @@ static void user_selected(
 
 /* =========================================================
  * User selection screen
- * ========================================================= */
+ * =========================================================
+ */
 
 static GtkWidget *create_user_screen(
     LoginData *login
 )
 {
+    GtkWidget *overlay;
+    GtkWidget *background;
     GtkWidget *box;
     GtkWidget *title;
     GtkWidget *list;
 
 
-    box = gtk_box_new(
-        GTK_ORIENTATION_VERTICAL,
-        10
+    /*
+     * Overlay lets the login UI sit
+     * on top of the background image.
+     */
+    overlay =
+        gtk_overlay_new();
+
+
+    /*
+     * Background image.
+     */
+    background =
+        gtk_picture_new_for_filename(
+            "assets/images/loginscr.png"
+        );
+
+
+    gtk_widget_set_hexpand(
+        background,
+        TRUE
     );
+
+    gtk_widget_set_vexpand(
+        background,
+        TRUE
+    );
+
+
+    gtk_picture_set_content_fit(
+        GTK_PICTURE(background),
+        GTK_CONTENT_FIT_COVER
+    );
+
+
+    gtk_overlay_set_child(
+        GTK_OVERLAY(overlay),
+        background
+    );
+
+
+    /*
+     * Login UI.
+     */
+    box =
+        gtk_box_new(
+            GTK_ORIENTATION_VERTICAL,
+            10
+        );
+
 
     gtk_widget_set_margin_top(
         box,
@@ -459,9 +577,11 @@ static GtkWidget *create_user_screen(
     );
 
 
-    title = gtk_label_new(
-        "Select User"
-    );
+    title =
+        gtk_label_new(
+            "Select User"
+        );
+
 
     gtk_box_append(
         GTK_BOX(box),
@@ -469,22 +589,43 @@ static GtkWidget *create_user_screen(
     );
 
 
-    list = gtk_list_box_new();
+    /*
+     * User list.
+     */
+    list =
+        gtk_list_box_new();
+
 
     gtk_list_box_set_selection_mode(
         GTK_LIST_BOX(list),
         GTK_SELECTION_SINGLE
     );
 
+
     gtk_list_box_set_activate_on_single_click(
         GTK_LIST_BOX(list),
         TRUE
     );
 
+
     gtk_widget_set_vexpand(
         list,
         TRUE
     );
+
+
+    /*
+     * Give the list a CSS class.
+     *
+     * users.css can target:
+     *
+     * .user-list
+     */
+    gtk_widget_add_css_class(
+        list,
+        "user-list"
+    );
+
 
     gtk_box_append(
         GTK_BOX(box),
@@ -493,21 +634,28 @@ static GtkWidget *create_user_screen(
 
 
     /*
+     * Put UI on top of background.
+     */
+    gtk_overlay_add_overlay(
+        GTK_OVERLAY(overlay),
+        box
+    );
+
+
+    /*
      * Get users from /etc/passwd.
      */
-
     struct passwd *user;
+
 
     setpwent();
 
-    while ((user = getpwent()) != NULL) {
 
-        /*
-         * Only show normal users.
-         */
+    while ((user = getpwent()) != NULL) {
 
         if (user->pw_uid < 1000)
             continue;
+
 
         if (user->pw_dir == NULL ||
             user->pw_dir[0] == '\0')
@@ -518,17 +666,34 @@ static GtkWidget *create_user_screen(
         GtkWidget *label;
 
 
-        row = gtk_list_box_row_new();
+        row =
+            gtk_list_box_row_new();
 
 
-        label = gtk_label_new(
-            user->pw_name
-        );
+        label =
+            gtk_label_new(
+                user->pw_name
+            );
 
 
         gtk_widget_set_halign(
             label,
             GTK_ALIGN_START
+        );
+
+
+        /*
+         * CSS class for individual user rows.
+         */
+        gtk_widget_add_css_class(
+            row,
+            "user-row"
+        );
+
+
+        gtk_widget_add_css_class(
+            label,
+            "user-label"
         );
 
 
@@ -544,13 +709,13 @@ static GtkWidget *create_user_screen(
         );
     }
 
+
     endpwent();
 
 
     /*
-     * User selection changed.
+     * Selection changed.
      */
-
     g_signal_connect(
         list,
         "row-selected",
@@ -562,7 +727,6 @@ static GtkWidget *create_user_screen(
     /*
      * User activated.
      */
-
     g_signal_connect(
         list,
         "row-activated",
@@ -572,9 +736,8 @@ static GtkWidget *create_user_screen(
 
 
     /*
-     * Select the first user.
+     * Select first user.
      */
-
     GtkListBoxRow *first_row =
         gtk_list_box_get_row_at_index(
             GTK_LIST_BOX(list),
@@ -589,19 +752,21 @@ static GtkWidget *create_user_screen(
             first_row
         );
 
+
         gtk_widget_grab_focus(
             GTK_WIDGET(first_row)
         );
     }
 
 
-    return box;
+    return overlay;
 }
 
 
 /* =========================================================
  * Main login creation
- * ========================================================= */
+ * =========================================================
+ */
 
 void login_create(
     screen_t *screen
@@ -610,41 +775,43 @@ void login_create(
     if (screen == NULL)
         return;
 
+
     LoginData *login =
-        calloc(1, sizeof(LoginData));
+        calloc(
+            1,
+            sizeof(LoginData)
+        );
+
 
     if (login == NULL)
         return;
 
 
-    /*
-     * Keep the screen manager.
-     */
-
-    login->screen = screen;
+    login->screen =
+        screen;
 
 
     /*
      * Create user screen.
      */
-
     login->user_screen =
-        create_user_screen(login);
+        create_user_screen(
+            login
+        );
 
 
     /*
      * Create password screen.
      */
-
     login->password_screen =
-        create_password_screen(login);
+        create_password_screen(
+            login
+        );
 
 
     /*
-     * Add both screens to the SAME GtkStack
-     * owned by screen->stack.
+     * Add both to the same GtkStack.
      */
-
     addscreen(
         screen,
         login->user_screen,
@@ -660,9 +827,12 @@ void login_create(
 
 
     /*
-     * Start on the user screen.
+     * Start on users.
+     *
+     * This also loads:
+     *
+     * assets/css/users.css
      */
-
     switchscreen(
         screen,
         "users"
