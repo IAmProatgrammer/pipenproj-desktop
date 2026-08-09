@@ -3,22 +3,42 @@
 #include "disstack.h"
 #include "login.h"
 
+
 static void activate(
     GtkApplication *app,
     gpointer user_data
 )
 {
+    (void)user_data;
+
     GtkWidget *window;
     GtkWidget *stack;
 
-    screen_t screen;
+    /*
+     * IMPORTANT:
+     *
+     * This is static so it remains alive after
+     * activate() returns.
+     *
+     * The login callbacks keep a pointer to this
+     * screen_t.
+     */
+    static screen_t screen;
 
-    window = gtk_application_window_new(app);
+
+    /*
+     * Create window.
+     */
+
+    window =
+        gtk_application_window_new(app);
+
 
     gtk_window_set_title(
         GTK_WINDOW(window),
         "Linux Desktop"
     );
+
 
     gtk_window_set_default_size(
         GTK_WINDOW(window),
@@ -26,43 +46,66 @@ static void activate(
         480
     );
 
+
     /*
-     * Create the actual GtkStack.
+     * Create the GtkStack.
      */
+
     stack = createstack();
 
+
+    if (stack == NULL)
+        return;
+
+
     /*
-     * Store that GtkStack in the screen manager.
+     * Give the screen manager ownership of
+     * the GtkStack pointer.
      */
+
     screen.stack = stack;
 
-    /*
-     * Create the login screens.
-     */
-    login_create(&screen);
 
     /*
-     * Put the GtkStack into the window.
+     * Create login screens and add them
+     * to this stack.
      */
+
+    login_create(
+        &screen
+    );
+
+
+    /*
+     * Put the stack into the window.
+     */
+
     gtk_window_set_child(
         GTK_WINDOW(window),
         stack
     );
+
 
     gtk_window_present(
         GTK_WINDOW(window)
     );
 }
 
-int main(int argc, char **argv)
+
+int main(
+    int argc,
+    char **argv
+)
 {
     GtkApplication *app;
     int status;
+
 
     app = gtk_application_new(
         "com.example.linuxdesktopui",
         G_APPLICATION_DEFAULT_FLAGS
     );
+
 
     g_signal_connect(
         app,
@@ -71,13 +114,17 @@ int main(int argc, char **argv)
         NULL
     );
 
-    status = g_application_run(
-        G_APPLICATION(app),
-        argc,
-        argv
-    );
+
+    status =
+        g_application_run(
+            G_APPLICATION(app),
+            argc,
+            argv
+        );
+
 
     g_object_unref(app);
+
 
     return status;
 }

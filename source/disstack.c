@@ -1,5 +1,5 @@
 #include "disstack.h"
-
+#include <stdio.h>
 
 GtkWidget *createstack(void)
 {
@@ -20,28 +20,38 @@ GtkWidget *createstack(void)
     return stack;
 }
 
-
 void addscreen(
     screen_t *screen,
     GtkWidget *widget,
     const char *name
 )
 {
-    if (screen == NULL)
+    if (screen == NULL) {
+        printf("ERROR: screen NULL\n");
         return;
+    }
 
-    if (screen->stack == NULL)
+    if (screen->stack == NULL) {
+        printf("ERROR: stack NULL\n");
         return;
+    }
 
-    if (!GTK_IS_STACK(screen->stack))
+    if (!GTK_IS_STACK(screen->stack)) {
+        printf("ERROR: stack is not a GtkStack\n");
         return;
+    }
 
-    if (widget == NULL)
+    if (widget == NULL) {
+        printf("ERROR: widget NULL\n");
         return;
+    }
 
-    if (name == NULL)
+    if (name == NULL) {
+        printf("ERROR: name NULL\n");
         return;
+    }
 
+    printf("Adding screen '%s'\n", name);
 
     gtk_stack_add_named(
         GTK_STACK(screen->stack),
@@ -50,24 +60,32 @@ void addscreen(
     );
 }
 
-
 void switchscreen(
     screen_t *screen,
     const char *name
 )
 {
-    if (screen == NULL)
+    if (screen == NULL) {
+        printf("ERROR: screen NULL\n");
         return;
+    }
 
-    if (screen->stack == NULL)
+    if (screen->stack == NULL) {
+        printf("ERROR: stack NULL\n");
         return;
+    }
 
-    if (!GTK_IS_STACK(screen->stack))
+    if (!GTK_IS_STACK(screen->stack)) {
+        printf("ERROR: stack is not a GtkStack\n");
         return;
+    }
 
-    if (name == NULL)
+    if (name == NULL) {
+        printf("ERROR: name NULL\n");
         return;
+    }
 
+    printf("Switching to '%s'\n", name);
 
     gtk_stack_set_visible_child_name(
         GTK_STACK(screen->stack),
