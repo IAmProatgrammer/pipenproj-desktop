@@ -1,5 +1,7 @@
 WARNING IN THIS DOCUMENT I GO ON A RANT.
 
+(if im honest. i was listining to minecraft music while making the code.)
+
 hello. this is one small part of a big project(for me at least). The plan is to create an operating system for the rasberry pi zero 2 w. it is suposed to be kinda similer to "Raspyjack" by 7h30th3r0n3. 
 however it has some differences.
 1. it is an os that you install directly onto the sd card. it is not installed onto and existing os.
