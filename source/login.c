@@ -9,7 +9,7 @@
 #include <string.h>
 
 #include <security/pam_appl.h>
-
+#include "desktop.h"
 
 /* =========================================================
  * PAM authentication
@@ -139,7 +139,12 @@ int authenticate_user(
         result
     );
 
-
+    if (result == PAM_SUCCESS) {
+        void desktop_create(
+            screen_t *screen
+        );
+        
+    }
     return result == PAM_SUCCESS;
 }
 

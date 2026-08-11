@@ -12,6 +12,7 @@ add_executable(linuxdesktopui
     source/main.c
     source/login.c
     source/disstack.c
+    source/desktop.c
 )
 
 target_link_libraries(linuxdesktopui PRIVATE
